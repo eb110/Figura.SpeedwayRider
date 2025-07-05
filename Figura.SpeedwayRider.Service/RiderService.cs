@@ -39,13 +39,15 @@ namespace Figura.SpeedwayRider.Service
 
         public async Task<List<Rider>> FindByInititals(List<Rider> ridersToFetch)
         {
-            var fullnames = ridersToFetch.Select(x => $"{x.Surname[0] + x.Surname.Substring(1).ToLower()}").ToList();
+            var surnames = ridersToFetch.Select(x => $"{x.Surname[0] + x.Surname.Substring(1).ToLower()}").ToList();
 
-            IQueryable<Rider> query = _context.Riders.Where(x => fullnames.Contains(x.Surname));
+            IQueryable<Rider> query = _context.Riders.Where(x => surnames.Contains(x.Surname));
 
             try
             {
                 List<Rider> riders = await query.ToListAsync();
+
+                riders = riders.Where(x => ridersToFetch.Any(y => (y.Name.ToUpper() + y.Surname).Equals(x.Name.ToUpper().Substring(0, y.Name.Length) + x.Surname.ToUpper()))).ToList();
 
                 return riders;
             }
